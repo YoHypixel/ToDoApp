@@ -1,12 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState} from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Task from './components/Task';
 
 const App = () => {
 
   const [task, setTask] = useState();
   const [taskItems, setTaskItems] = useState([]);
+  const [longPress, setLongPress] = useState(false)
 
   const handleAddTask = () => {
     if (task != null) {
@@ -16,11 +17,13 @@ const App = () => {
   }
 
   const completeTask = (index) => {
+    if(longPress != false){
     let itemsCopy = [...taskItems]
+    setLongPress=false
     itemsCopy.splice(index, 1)
     setTaskItems(itemsCopy)
   }
-
+  }
   return (
     <View style={styles.container}>
     <StatusBar style='dark' />
@@ -35,11 +38,14 @@ const App = () => {
 
           {  taskItems.map((item, index) => {
               return( 
-              <TouchableOpacity key ={index} onPress={() => completeTask(index)}>
+                <Pressable  key={index} onLongPress={() => {
+                  setLongPress(true)
+                  completeTask(index)}} >
 
               <Task text ={item}/>
 
-              </TouchableOpacity>
+                </Pressable >
+
               )
             })
             }
@@ -49,7 +55,7 @@ const App = () => {
       </View>
 
       <KeyboardAvoidingView 
-      behavior={Platform.OS === "ios" ? "padding": "height"}
+      behavior={Platform.OS === "ios" || Platform.OS =="android" ? "padding": "height"}
       style={styles.writeTaskWrapper}
       >
         <TextInput 
