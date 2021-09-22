@@ -1,78 +1,91 @@
 import { StatusBar } from 'expo-status-bar';
-import React, {useState} from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useState} from 'react';
+import { Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, Animated, View } from 'react-native';
 import Task from './components/Task';
+import * as Haptics from 'expo-haptics';
 
 const App = () => {
 
   const [task, setTask] = useState();
   const [taskItems, setTaskItems] = useState([]);
-  const [longPress, setLongPress] = useState(false)
+  const [longPress, setPress] = useState();
+  const [alpha, setAlpha] = useState(10.0);
+
+
 
   const handleAddTask = () => {
+    Keyboard.dismiss()
     if (task != null) {
-    setTaskItems([...taskItems, task])
-    setTask(null);
-  }
+      setTaskItems([...taskItems, task])
+      setTask(null);
+    }
   }
 
   const completeTask = (index) => {
-    if(longPress != false){
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
     let itemsCopy = [...taskItems]
-    setLongPress=false
+    setPress(false)
     itemsCopy.splice(index, 1)
     setTaskItems(itemsCopy)
-  }
+
   }
   return (
     <View style={styles.container}>
-    <StatusBar style='dark' />
+      <StatusBar style='dark' />
 
       <View style={styles.tasksWrapper}>
 
         <Text style={styles.sectionTitle}>
           Today's Tasks
-          </Text>
+        </Text>
 
-          <View style={styles.items}>
+        <View style={styles.items} >
 
-          {  taskItems.map((item, index) => {
-              return( 
-                <Pressable  key={index} onLongPress={() => {
-                  setLongPress(true)
-                  completeTask(index)}} >
+          {taskItems.map((item, index) => {
+            return (
 
-              <Task text ={item}/>
+              <Pressable key={index} delayLongPress={200}
+              
 
-                </Pressable >
+              style={({opacity:alpha})}
 
-              )
-            })
-            }
+                onPressIn={setAlpha(0.5)}
 
-          </View> 
-          
-      </View>
+                onLongPress={() => {
+                  Keyboard.dismiss()
+                  completeTask(index)
+                }}>
 
-      <KeyboardAvoidingView 
-      behavior={Platform.OS === "ios" || Platform.OS =="android" ? "padding": "height"}
-      style={styles.writeTaskWrapper}
-      >
-        <TextInput 
-        collapsable={true}
-        style={styles.input} 
-        placeholder={'Write a task'} 
-        value={task} 
-        onChangeText={text => setTask(text)}/>
 
-        <TouchableOpacity onPress={() => handleAddTask()}>
+                <Task text={item} />
+              </Pressable>
 
-        <View style={styles.addWrapper}>
-          <Text style={styles.addText}>+</Text>
+            )
+          })
+          }
 
         </View>
- 
-        </TouchableOpacity>
+
+      </View>
+
+      <KeyboardAvoidingView
+        style={styles.writeTaskWrapper}
+      >
+        <TextInput
+          collapsable={true}
+          style={styles.input}
+          placeholder={'Write a task'}
+          value={task}
+          onChangeText={text => setTask(text)} />
+
+        <Pressable onPress={() => handleAddTask()}>
+
+          <View style={styles.addWrapper}>
+            <Text style={styles.addText}>+</Text>
+
+          </View>
+
+        </Pressable>
 
 
       </KeyboardAvoidingView>
@@ -103,38 +116,38 @@ const styles = StyleSheet.create({
     marginTop: 30,
 
 
-},
-writeTaskWrapper: { 
-  position:'absolute',
-  bottom:60,
-  width:'100%',
-  flexDirection: 'row',
-  justifyContent: 'space-around',
+  },
+  writeTaskWrapper: {
+    position: 'absolute',
+    bottom: 60,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
 
-},
-input: {
-  paddingVertical: 15,
-  paddingHorizontal: 15,
-  backgroundColor: '#FFF',
-  borderRadius: 60,
-  borderColor: '#C0C0C0',
-  borderWidth: 1,
-  width: 250,
+  },
+  input: {
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    backgroundColor: '#FFF',
+    borderRadius: 60,
+    borderColor: '#C0C0C0',
+    borderWidth: 1,
+    width: 250,
 
 
-},
-addWrapper: {
-  width: 60,
-  height: 60,
-  backgroundColor:'#FFF',
-  borderRadius: 60,
-  justifyContent: 'center',
-  alignItems:'center',
-  borderColor:'#C0C0C0',
-  borderWidth:1,
-},
-addText: {
-  fontSize:12,
+  },
+  addWrapper: {
+    width: 60,
+    height: 60,
+    backgroundColor: '#FFF',
+    borderRadius: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: '#C0C0C0',
+    borderWidth: 1,
+  },
+  addText: {
+    fontSize: 12,
 
-}
+  }
 });
